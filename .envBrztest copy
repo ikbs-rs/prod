@@ -1,0 +1,34 @@
+#MYSQL_HOST = 'localhost'
+#MYSQL_PORT = '3306'
+#MYSQL_USER = 'root'
+#MYSQL_PASSWORD = '123WWWwww#'
+#MYSQL_DATABASE = 'adm'
+
+#POSGRESQL_HOST = 'localhost'
+#POSGRESQL_PORT = '5432'
+#POSGRESQL_USER = 'iis'
+#POSGRESQL_PASSWORD = 'iis'
+#POSGRESQL_DATABASE = 'ikbs'
+
+#DB_HOST = 'ws10.ems.local'
+DB_HOST = '192.168.72.96'
+#DB_HOST = '192.168.72.123'
+DB_PORT = '5432'
+DB_USER = 'iis'
+DB_PASSWORD = 'iis'
+DB_DATABASE = 'ikbs'
+
+JWT_URL = 'LOCAL'
+URL_BASE = '/ticketlines/api' #ne radi trenutno kada se prosledjuje route nije bitno sada
+
+#WEB_DOMEN = 'https://dev.app.ems.rs'
+WEB_DOMEN = 'http://bzrtest.ems.local'
+APP_PORT = '8302'
+HTTPS_PORT = '8332'
+ROOT_DIR = 'badm'
+DATA_CENTAR = '3'
+SSL_DIR= 'C:\\DEV\\ikbs-rs\\js\\back\\adm\\src\\security\\ssl\\'
+
+SECRET = '4a8fd3c7f98a01b84627b3d13ae6d0f679bd5aabbf14de57d95ecba9c1875d5a'
+EXPIRESIN = '1h'
+REFRESHEXPIRESIN = '1d'
