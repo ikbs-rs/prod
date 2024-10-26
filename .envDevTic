@@ -18,15 +18,15 @@ DB_USER = 'iis'
 DB_PASSWORD = 'iis'
 DB_DATABASE = 'ikbs'
 
-JWT_URL = 'LOCAL'
+JWT_URL = 'http://localhost:8302/badm/adm/services'
 URL_BASE = '/ticketlines/api' #ne radi trenutno kada se prosledjuje route nije bitno sada
 
 #WEB_DOMEN = 'https://dev.app.ems.rs'
 WEB_DOMEN = 'http://localhost/'
 # WEB_DOMEN = 'https://172.16.26.245/'
-APP_PORT = '8302'
-HTTPS_PORT = '8332'
-ROOT_DIR = 'badm'
+APP_PORT = '8306'
+HTTPS_PORT = '8336'
+ROOT_DIR = 'prod'
 DATA_CENTAR = '3'
 SSL_DIR= '/opt/app/ikbs-rs/js/back/adm/src/security/ssl/'
 

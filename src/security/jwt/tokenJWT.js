@@ -39,20 +39,17 @@ const verifyJWT = async (req, res, next) => {
 
   jwt.verify(token, jwtConfig.secret, (err, decoded) => {
     if (err) return res.status(401).send({ error: "Token invalid" });
-    req.userId = decoded.userId;
+    req.userId = decoded.id;
     res.status(200).json({ message: "Data processed successfully", decoded });
     next();
   });
 };
 
-const getToken = async (userId, userName, admin, channels) => {
+const getToken = async (userId, userName) => {
   const payload = {
     userId: userId,
-    id: userId,
-    admin: admin,
     username: userName,
     iat: Date.now(),
-    channels: channels,
   };
   const token = jwt.sign(payload, jwtConfig.secret, {
     expiresIn: jwtConfig.expiresIn,
@@ -65,7 +62,6 @@ const getToken = async (userId, userName, admin, channels) => {
 };
 
 const decodeJWT = async (req, res, next) => {
-  console.log("*******************decodeJWT*********************")
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader)
@@ -83,9 +79,7 @@ const decodeJWT = async (req, res, next) => {
     jwt.verify(token, jwtConfig.secret, (err, decoded) => {
       if (err) return res.status(401).send({ error: "Token invalid" });
       req.userId = decoded.userId;
-      const resObj = {"userId": `${decoded.userId}`, "username": `${decoded.username}`}
-      console.log(resObj, "*******************resObj*********************")
-      res.status(200).json({ message: "Data processed successfully", resObj });
+      res.status(200).json({ message: "Data processed successfully", decoded });
     });
   } catch (error) {
     // u slučaju greške, vraćamo objekat sa informacijama o grešci
