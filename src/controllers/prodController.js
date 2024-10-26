@@ -14,7 +14,7 @@ const getAll = async (req, res) => {
     let sqlRecenica = '';
     let item = null;
 
-    console.log(stm, "ULAZ xxxxxxxxxxx getAll xxxxxxxxxxxx", new Date().toLocaleString());
+    // console.log(stm, "ULAZ xxxxxxxxxxx getAll xxxxxxxxxxxx", new Date().toLocaleString());
 
 
     // Proveri vrednost `stm` i izvrši odgovarajuću SQL upit
@@ -220,12 +220,20 @@ const getAll = async (req, res) => {
           where o.lang = '${lang || 'sr_cyr'}'
             `;
         break;
+        case "cmn_getparbyuserid_v":
+          sqlRecenica = `
+          select p.*
+          from cmn_parx_v p
+          join adm_paruser ap on ap.par = p.id and ap.usr = ${objId}   
+          where 	p.lang = '${lang || 'en'}'
+            `;
+          break;        
       default:
         console.error("Pogrešan naziv za view");
         return res.status(400).json({ message: "Invalid 'stm' parameter" });
     }
 
-    console.log(sqlRecenica, "***********************getAll***********************");
+    // console.log(sqlRecenica, "***********************getAll***********************");
 
     const result = await db.query(sqlRecenica);
     const rows = result.rows;
@@ -235,7 +243,7 @@ const getAll = async (req, res) => {
     } else {
       throw new Error(`Greška pri dohvatanju slogova iz baze: ${rows}`);
     }
-    console.log(stm, "IZLAZ xxxxxxxxxxx getAll xxxxxxxxxxxx", new Date().toLocaleString());
+    // console.log(stm, "IZLAZ xxxxxxxxxxx getAll xxxxxxxxxxxx", new Date().toLocaleString());
     res.status(200).json({ item });
   } catch (err) {
     console.error(err);

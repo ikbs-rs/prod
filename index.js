@@ -9,18 +9,21 @@ import https from 'https';
 
 dotenv.config()
 // Funkcija za kreiranje nove instance servera
+let server;
 function createServer(appInstance, port, useHttps = false, credentials = null) {
   if (useHttps && credentials) {
-    const httpsServer = https.createServer(credentials, appInstance);
-    httpsServer.listen(port, () => {
+    server = https.createServer(credentials, appInstance);
+    server.listen(port, () => {
       console.log(`HTTPS Server pokrenut na portu ${port}`);
     });
   } else {
-    const httpServer = http2.createServer(appInstance);
-    httpServer.listen(port, () => {
+    server = http2.createServer(appInstance);
+    server.listen(port, () => {
       console.log(`HTTP Server pokrenut na portu ${port}`);
     });
   }
+  server.keepAliveTimeout = 60000;  
+  server.headersTimeout = 62000;  
 }
 
 const httpPort = process.env.APP_PORT || 80; // HTTP port
@@ -52,13 +55,18 @@ app.use((req, res, next) => {
 app.use(`/${rootDir}/`, router)
 
 
-const httpServer = http2.createServer(app);
-const httpsServer = https.createServer(credentials, app);
 
+
+const httpServer = http2.createServer(app);
+httpServer.keepAliveTimeout = 60000;  // 60 sekundi
+httpServer.headersTimeout = 62000;
 httpServer.listen(httpPort, () => {
   console.log(`HTTP Server je pokrenut na adresi ${webDomen}  ${rootDir} : ${httpPort}`);
 });
 
+const httpsServer = https.createServer(credentials, app);
+httpsServer.keepAliveTimeout = 60000;  // 60 sekundi
+httpsServer.headersTimeout = 62000;
 httpsServer.listen(httpsPort, () => {
   console.log(`HTTPS Server je pokrenut na adresi ${webDomen}  ${rootDir} : ${httpsPort}`);
 });
