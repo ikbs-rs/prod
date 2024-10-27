@@ -220,14 +220,28 @@ const getAll = async (req, res) => {
           where o.lang = '${lang || 'sr_cyr'}'
             `;
         break;
-        case "cmn_getparbyuserid_v":
-          sqlRecenica = `
+      case "cmn_getparbyuserid_v":
+        sqlRecenica = `
           select p.*
           from cmn_parx_v p
           join adm_paruser ap on ap.par = p.id and ap.usr = ${objId}   
           where 	p.lang = '${lang || 'en'}'
             `;
-          break;        
+        break;
+      case "tic_eventattstp_v":
+        sqlRecenica = `
+          select aa.id , aa.site , aa.event , aa.value, aa.valid, a2.ddlist, aa.text, aa.color, aa.icon,aa.condition, aa.link, aa.minfee,
+                a2.inputtp, getValueById(a2.inputtp, 'cmn_inputtpx_v', 'code', '${lang || 'sr_cyr'}') cinputtp, getValueById(a2.inputtp, 'cmn_inputtpx_v', 'text', '${lang || 'sr_cyr'}') ninputtp,
+                a2.tp, getValueById(a2.tp, 'tic_eventatttpx_v', 'code', '${lang || 'sr_cyr'}') cttp, getValueById(a2.tp, 'tic_eventatttpx_v', 'text', '${lang || 'sr_cyr'}') nttp,
+                aa.att, a2.code ctp, a2.text ntp, a2.description
+          from	tic_eventatts aa, tic_eventattx_v a2
+          where aa.event = ${objId}
+          and   case ${par1} when '-1' then a2.tp else ${par1} end = a2.tp
+          and   aa.att = a2.id
+          and   a2.lang = '${lang || 'sr_cyr'}'
+          order by a2.code
+            `;
+        break;
       default:
         console.error("Pogrešan naziv za view");
         return res.status(400).json({ message: "Invalid 'stm' parameter" });
