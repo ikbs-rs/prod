@@ -119,10 +119,11 @@ const getAll = async (req, res) => {
           select aa.doc id, aa.tgp, aa.taxrate, aa.art, a.code cart, a.text nart, e.text nevent, 
                 sum(aa."output") "output" , sum(aa."potrazuje") "potrazuje" , sum(aa.rightcurr) rightcurr, sum(aa.discount) discount
           from tic_docs aa
-          join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
+          join tic_doc d on aa.doc = d.id
           join tic_artx_v a on aa.art = a.id and a.lang = 'sr_cyr'
           join tic_arttp t on t.id = a.tp and t.code = 'Н'
           join tic_eventx_v e on e.id = aa.event
+          where  aa.doc = ${objId}
           group by aa.doc, aa.tgp, aa.taxrate, aa.art, a.code, a.text, e.text
             `;
         break;
