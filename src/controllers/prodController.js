@@ -252,11 +252,17 @@ const getAll = async (req, res) => {
 
     const result = await db.query(sqlRecenica);
     const rows = result.rows;
-
-    if (Array.isArray(rows)) {
-      item = rows;
-    } else {
-      throw new Error(`Greška pri dohvatanju slogova iz baze: ${rows}`);
+    switch (stm) {
+      case "tic_doc":
+      case "cmn_par":
+        item = rows[0];
+        break;
+      default:
+        if (Array.isArray(rows)) {
+          item = rows;
+        } else {
+          throw new Error(`Greška pri dohvatanju slogova iz baze: ${rows}`);
+        }
     }
     // console.log(stm, "IZLAZ xxxxxxxxxxx getAll xxxxxxxxxxxx", new Date().toLocaleString());
     res.status(200).json({ item });
