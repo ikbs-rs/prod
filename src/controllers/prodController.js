@@ -147,7 +147,7 @@ const getAll = async (req, res) => {
         sqlRecenica = `
           select aa.*
           from  tic_docdelivery aa
-          where  ${item} = ${objId}
+          where  ${par1} = ${objId}
             `;
         break;
       case "tic_docseventartcena_v":
@@ -248,11 +248,11 @@ const getAll = async (req, res) => {
         return res.status(400).json({ message: "Invalid 'stm' parameter" });
     }
 
-    // console.log(sqlRecenica, "***********************getAll***********************");
+    console.log(sqlRecenica, "*********************getAll***********************");
 
     const result = await db.query(sqlRecenica);
     const rows = result.rows;
-    // switch (stm) {
+    // switch (stm) {   
     //   case "tic_doc":
     //   case "cmn_par":
     //     item = rows[0];

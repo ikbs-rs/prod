@@ -38,10 +38,10 @@ const credentials = { key: privateKey, cert: certificate };
 
 const app = express()
 app.use(cors());
-app.use((req, res, next) => {
-  console.log("Zahtev stigao!")
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log("Zahtev stigao!")
+//   next();
+// });
 // app.use((req, res, next) => {
 //   const allowedOrigins = [webDomen, '*.ems.local'];
 //   const origin = req.headers.origin;
