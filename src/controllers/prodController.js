@@ -1,3 +1,4 @@
+import { all } from "axios";
 import db from "../db/db.js";
 
 const getAll = async (req, res) => {
@@ -126,7 +127,7 @@ const getAll = async (req, res) => {
     group by aa.doc, aa.tgp, aa.taxrate, aa.art, a.code, a.text, e.text	
     union
     select aa.doc id, aa.printtgp, aa.printtax, aa.printid, aa.printcode cart, aa.printtext nart, e.text nevent, 
-          sum(aa."output") "output" , sum(aa."potrazuje") "potrazuje" , sum(aa.rightcurr) rightcurr, sum(aa.discount) discount
+          sum(aa."output") "output" , sum(aa.printfee) "potrazuje" , sum(aa.printfee) rightcurr, sum(aa.discount) discount
     from tic_docs aa
     join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
     join tic_eventx_v e on e.id = aa.event
@@ -134,7 +135,7 @@ const getAll = async (req, res) => {
     group by aa.doc, aa.printtgp, aa.printtax, aa.printid, aa.printcode, aa.printtext, e.text
     union
     select aa.doc id, aa.onlinetgp, aa.onlinetax, aa.onlineid, aa.onlinecode cart, aa.onlinetext nart, e.text nevent, 
-          sum(aa."output") "output" , sum(aa."potrazuje") "potrazuje" , sum(aa.rightcurr) rightcurr, sum(aa.discount) discount
+          sum(aa."output") "output" , sum(aa.onlinefee) "potrazuje" , sum(aa.onlinefee) rightcurr, sum(aa.discount) discount
     from tic_docs aa
     join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
     join tic_eventx_v e on e.id = aa.event
@@ -142,7 +143,7 @@ const getAll = async (req, res) => {
     group by aa.doc, aa.onlinetgp, aa.onlinetax, aa.onlineid, aa.onlinecode, aa.onlinetext, e.text
     union
     select aa.doc id, aa.reztgp, aa.reztax, aa.rezid, aa.rezcode cart, aa.reztext nart, e.text nevent, 
-          sum(aa."output") "output" , sum(aa."potrazuje") "potrazuje" , sum(aa.rightcurr) rightcurr, sum(aa.discount) discount
+          sum(aa."output") "output" , sum(aa.rezfee) "potrazuje" , sum(aa.rezfee) rightcurr, sum(aa.discount) discount
     from tic_docs aa
     join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
     join tic_eventx_v e on e.id = aa.event
@@ -150,7 +151,7 @@ const getAll = async (req, res) => {
     group by aa.doc, aa.reztgp, aa.reztax, aa.rezid, aa.rezcode, aa.reztext, e.text
     union
     select aa.doc id, aa.pmtgp, aa.pmtax, aa.pmid, aa.pmcode cart, aa.pmtext nart, e.text nevent, 
-          sum(aa."output") "output" , sum(aa."potrazuje") "potrazuje" , sum(aa.rightcurr) rightcurr, sum(aa.discount) discount
+          sum(aa."output") "output" , sum(aa.pmfee) "potrazuje" , sum(aa.pmfee) rightcurr, sum(aa.discount) discount
     from tic_docs aa
     join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
     join tic_eventx_v e on e.id = aa.event
@@ -344,8 +345,146 @@ const getValue = async (req, res) => {
     res.status(500).json({ message: `Došlo je do greške u getValue`, error: err.message });
   }
 };
+function createInvoiceData(json1, json2) {
+  // Mapiranje iz json1 za stavke s 'Г' oznakom
+  const itemsG = json1.map(item => ({
+      name: item.nart,
+      labels: ['Г'],
+      totalAmount: item.potrazuje,
+      unitPrice: item.price,
+      quantity: item.output
+  }));
+
+  // Mapiranje iz json2 za stavke s 'Ђ' oznakom
+  const itemsDj = json2.map(item => ({
+      name: item.nart,
+      labels: ['Ђ'],
+      totalAmount: item.potrazuje,
+      unitPrice: item.potrazuje,
+      quantity: 1.000
+  }));
+
+  // Kombinacija svih stavki u jedinstveni niz
+  const allItems = [...itemsG, ...itemsDj];
+console.log(allItems, "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
+  // Izračunavanje ukupne sume za payment
+  const totalAmount = allItems.reduce((sum, item) => sum + Number(item.totalAmount), 0);
+  console.log(totalAmount, "11-SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
+
+  // Kreiranje finalnog JSON-a
+  const invoiceRequest = {
+      invoiceType: 'Training',
+      transactionType: 'Sale',
+      payment: [
+          {
+              amount: totalAmount,
+              paymentType: 'WireTransfer'
+          }
+      ],
+      items: allItems,
+      cashier: 'Marko TEST',
+      buyerId: '11:2505979710072'
+  };
+
+  return invoiceRequest;
+}
+const getDataFiskal = async (req, res) => {
+  try {
+    const {
+      stm,
+      objid: objId,
+      sl: lang = 'sr_cyr',
+      par1, par2, par3, par4, par5, par6, par7, par8, par9, par10
+    } = req.query;
+
+    let itemK = null;
+    let itemN = null;
+    // Proveri vrednost `stm` i izvrši odgovarajući SQL upit
+    const sqlRecenicaK = `
+    select aa.id, aa.loc, aa.art, aa.tgp, aa.taxrate, aa.price , aa."input", aa."output" , aa.curr , aa.currrate, aa.site, aa.doc, aa.seat, aa.row,
+    aa."duguje" , aa."potrazuje" , aa.leftcurr , aa.rightcurr, aa.begtm , aa.endtm , aa.status , aa.fee , aa.par, aa.descript, aa.discount,
+    aa.cena, aa.reztm, aa.storno, aa.nart, aa."row", aa."label", aa.vreme, aa.ticket, aa.services, aa.tickettp, aa.delivery,
+    aa.ulaz, aa.sector, aa.barcode, aa.online, aa.print, aa.pm, aa.rez, aa.sysuser,
+    aa.event, getValueById(aa.event, 'tic_eventx_v', 'code', '${lang || 'sr_cyr'}') cevent, getValueById(aa.event, 'tic_eventx_v', 'text', '${lang || 'sr_cyr'}') nevent,
+    aa.loc, getValueById(aa.loc, 'cmn_locx_v', 'code', '${lang || 'sr_cyr'}') cloc, getValueById(aa.loc, 'cmn_locx_v', 'text', '${lang || 'sr_cyr'}') nloc,
+    aa.art, getValueById(aa.art, 'tic_artx_v', 'code', '${lang || 'sr_cyr'}') cart, getValueById(aa.art, 'tic_artx_v', 'text', '${lang || 'sr_cyr'}') nart,
+    0 del
+    from tic_docs aa
+    join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
+    join tic_artx_v a on aa.art = a.id and a.lang = '${lang || 'sr_cyr'}'
+    join tic_arttp t on t.id = a.tp and t.code != 'Н'
+    and aa.doc = d.id
+      `;
+    // console.log(sqlRecenica, "***********************getValue***********************");
+    const resultK = await db.query(sqlRecenicaK);
+    if (Array.isArray(resultK.rows)) {
+      itemK = resultK.rows;
+    } else {
+      throw new Error(`Greška pri dohvatanju slogova iz baze: ${rows}`);
+    }
+
+    // Proveri vrednost `stm` i izvrši odgovarajući SQL upit
+    const sqlRecenicaN = `
+    select aa.doc id, aa.tgp, aa.taxrate, aa.art, a.code cart, a.text nart, e.text nevent, 
+          sum(aa."output") "output" , sum(aa."potrazuje") "potrazuje" , sum(aa.rightcurr) rightcurr, sum(aa.discount) discount
+    from tic_docs aa
+    join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
+    join tic_artx_v a on aa.art = a.id and a.lang = 'sr_cyr'
+    join tic_arttp t on t.id = a.tp and t.code = 'Н'
+    join tic_eventx_v e on e.id = aa.event
+    group by aa.doc, aa.tgp, aa.taxrate, aa.art, a.code, a.text, e.text	
+    union
+    select aa.doc id, aa.printtgp, aa.printtax, aa.printid, aa.printcode cart, aa.printtext nart, e.text nevent, 
+          sum(aa."output") "output" , sum(aa.printfee) "potrazuje" , sum(aa.printfee) rightcurr, sum(aa.discount) discount
+    from tic_docs aa
+    join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
+    join tic_eventx_v e on e.id = aa.event
+    where aa.printid != -1
+    group by aa.doc, aa.printtgp, aa.printtax, aa.printid, aa.printcode, aa.printtext, e.text
+    union
+    select aa.doc id, aa.onlinetgp, aa.onlinetax, aa.onlineid, aa.onlinecode cart, aa.onlinetext nart, e.text nevent, 
+          sum(aa."output") "output" , sum(aa.onlinefee) "potrazuje" , sum(aa.onlinefee) rightcurr, sum(aa.discount) discount
+    from tic_docs aa
+    join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
+    join tic_eventx_v e on e.id = aa.event
+    where aa.onlineid != -1
+    group by aa.doc, aa.onlinetgp, aa.onlinetax, aa.onlineid, aa.onlinecode, aa.onlinetext, e.text
+    union
+    select aa.doc id, aa.reztgp, aa.reztax, aa.rezid, aa.rezcode cart, aa.reztext nart, e.text nevent, 
+          sum(aa."output") "output" , sum(aa.rezfee) "potrazuje" , sum(aa.rezfee) rightcurr, sum(aa.discount) discount
+    from tic_docs aa
+    join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
+    join tic_eventx_v e on e.id = aa.event
+    where aa.rezid != -1
+    group by aa.doc, aa.reztgp, aa.reztax, aa.rezid, aa.rezcode, aa.reztext, e.text
+    union
+    select aa.doc id, aa.pmtgp, aa.pmtax, aa.pmid, aa.pmcode cart, aa.pmtext nart, e.text nevent, 
+          sum(aa."output") "output" , sum(aa.pmfee) "potrazuje" , sum(aa.pmfee) rightcurr, sum(aa.discount) discount
+    from tic_docs aa
+    join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
+    join tic_eventx_v e on e.id = aa.event
+    where aa.pmid != -1
+    group by aa.doc, aa.pmtgp, aa.pmtax, aa.pmid, aa.pmcode, aa.pmtext, e.text
+            `;
+    // console.log(sqlRecenica, "***********************getValue***********************");
+    const resultN = await db.query(sqlRecenicaN);
+    if (Array.isArray(resultK.rows)) {
+      itemN = resultN.rows;
+    } else {
+      throw new Error(`Greška pri dohvatanju slogova iz baze: ${rows}`);
+    }    
+    // console.log(stm, "IZLAZ xxxxxxxxxxx getAll xxxxxxxxxxxx", new Date().toLocaleString());
+    const item = createInvoiceData(itemK, itemN);
+    res.status(200).json({ item });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: `Došlo je do greške u getValue`, error: err.message });
+  }
+};
 
 export default {
   getAll,
-  getValue
+  getValue,
+  getDataFiskal,
+  createInvoiceData
 };

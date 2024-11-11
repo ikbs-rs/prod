@@ -15,7 +15,9 @@ router.use(express.json());
 //   }
 // });
 
-router.get("/prodaja", prodController.getAll);  // Ruta za GET prodaju
+router.get("/prodaja/fiskaldata", prodController.getDataFiskal);
+router.get("/prodaja", prodController.getAll); 
+
 
 router.use("/", (req, res, next) => {
   console.log("03 Greska!!! ");
