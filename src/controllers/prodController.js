@@ -203,13 +203,31 @@ const getAll = async (req, res) => {
           aa.event, getValueById(aa.event, 'tic_eventx_v', 'code', '${lang || 'sr_cyr'}') cevent, getValueById(aa.event, 'tic_eventx_v', 'text', '${lang || 'sr_cyr'}') nevent,
           aa.loc, getValueById(aa.loc, 'cmn_locx_v', 'code', '${lang || 'sr_cyr'}') cloc, getValueById(aa.loc, 'cmn_locx_v', 'text', '${lang || 'sr_cyr'}') nloc,
           aa.art, getValueById(aa.art, 'tic_artx_v', 'code', '${lang || 'sr_cyr'}') cart, getValueById(aa.art, 'tic_artx_v', 'text', '${lang || 'sr_cyr'}') nart,
-          0 del
+          0 del, aa.docstorno
           from tic_docs aa
           join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
           join tic_artx_v a on aa.art = a.id and a.lang = '${lang || 'sr_cyr'}'
           join tic_arttp t on t.id = a.tp and t.code != 'Н'
           and aa.doc = d.id
             `;
+        break;
+      case "tic_docsartiklistorno_v":
+        sqlRecenica = `
+            select aa.id, aa.loc, aa.art, aa.tgp, aa.taxrate, aa.price , aa."input", aa."output" , aa.curr , aa.currrate, aa.site, aa.doc, aa.seat, aa.row,
+            aa."duguje" , aa."potrazuje" , aa.leftcurr , aa.rightcurr, aa.begtm , aa.endtm , aa.status , aa.fee , aa.par, aa.descript, aa.discount,
+            aa.cena, aa.reztm, aa.storno, aa.nart, aa."row", aa."label", aa.vreme, aa.ticket, aa.services, aa.tickettp, aa.delivery,
+            aa.ulaz, aa.sector, aa.barcode, aa.online, aa.print, aa.pm, aa.rez, aa.sysuser,
+            aa.event, getValueById(aa.event, 'tic_eventx_v', 'code', '${lang || 'sr_cyr'}') cevent, getValueById(aa.event, 'tic_eventx_v', 'text', '${lang || 'sr_cyr'}') nevent,
+            aa.loc, getValueById(aa.loc, 'cmn_locx_v', 'code', '${lang || 'sr_cyr'}') cloc, getValueById(aa.loc, 'cmn_locx_v', 'text', '${lang || 'sr_cyr'}') nloc,
+            aa.art, getValueById(aa.art, 'tic_artx_v', 'code', '${lang || 'sr_cyr'}') cart, getValueById(aa.art, 'tic_artx_v', 'text', '${lang || 'sr_cyr'}') nart,
+            0 del, aa.docstorno
+            from tic_docs aa
+            join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
+            join tic_artx_v a on aa.art = a.id and a.lang = '${lang || 'sr_cyr'}'
+            join tic_arttp t on t.id = a.tp and t.code != 'Н'
+            and aa.doc = d.id
+            and aa.docstorno != 1
+              `;
         break;
       case "tic_docsdiscountl_v":
         sqlRecenica = `
@@ -348,42 +366,42 @@ const getValue = async (req, res) => {
 function createInvoiceData(json1, json2) {
   // Mapiranje iz json1 za stavke s 'Г' oznakom
   const itemsG = json1.map(item => ({
-      name: item.nart,
-      labels: ['Г'],
-      totalAmount: item.potrazuje,
-      unitPrice: item.price,
-      quantity: item.output
+    name: item.nart,
+    labels: ['Г'],
+    totalAmount: item.potrazuje,
+    unitPrice: item.price,
+    quantity: item.output
   }));
 
   // Mapiranje iz json2 za stavke s 'Ђ' oznakom
   const itemsDj = json2.map(item => ({
-      name: item.nart,
-      labels: ['Ђ'],
-      totalAmount: item.potrazuje,
-      unitPrice: item.potrazuje,
-      quantity: 1.000
+    name: item.nart,
+    labels: ['Ђ'],
+    totalAmount: item.potrazuje,
+    unitPrice: item.potrazuje,
+    quantity: 1.000
   }));
 
   // Kombinacija svih stavki u jedinstveni niz
   const allItems = [...itemsG, ...itemsDj];
-console.log(allItems, "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
+  console.log(allItems, "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
   // Izračunavanje ukupne sume za payment
   const totalAmount = allItems.reduce((sum, item) => sum + Number(item.totalAmount), 0);
   console.log(totalAmount, "11-SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
 
   // Kreiranje finalnog JSON-a
   const invoiceRequest = {
-      invoiceType: 'Training',
-      transactionType: 'Sale',
-      payment: [
-          {
-              amount: totalAmount,
-              paymentType: 'WireTransfer'
-          }
-      ],
-      items: allItems,
-      cashier: 'Marko TEST',
-      buyerId: '11:2505979710072'
+    invoiceType: 'Training',
+    transactionType: 'Sale',
+    payment: [
+      {
+        amount: totalAmount,
+        paymentType: 'WireTransfer'
+      }
+    ],
+    items: allItems,
+    cashier: 'Marko TEST',
+    buyerId: '11:2505979710072'
   };
 
   return invoiceRequest;
@@ -472,7 +490,7 @@ const getDataFiskal = async (req, res) => {
       itemN = resultN.rows;
     } else {
       throw new Error(`Greška pri dohvatanju slogova iz baze: ${rows}`);
-    }    
+    }
     // console.log(stm, "IZLAZ xxxxxxxxxxx getAll xxxxxxxxxxxx", new Date().toLocaleString());
     const item = createInvoiceData(itemK, itemN);
     res.status(200).json({ item });
