@@ -293,12 +293,68 @@ const getAll = async (req, res) => {
           order by a2.code
             `;
         break;
+      case "tic_eventattscodevaluel_v":
+        sqlRecenica =
+          `
+          select aa.id, a2.code catt, a2.text natt, a2.code, aa.value val1, aa.text val2, aa.condition val3, aa.link val4, aa.minfee val5
+          from	tic_eventatts aa 
+          join tic_eventattx_v a2 on  aa.att = a2.id and a2.code = '${par1}'
+          where aa.event = ${objId}
+            `;
+        break;
+      case "tic_doceventkupacbrojkartil_v":
+        sqlRecenica =
+          `
+            select s.event, d.id, p."text", p.id, p.email, p.birthday, p.idnum, count(*) broj, 1 kupac
+            from tic_docs s 
+            join tic_doc d on d.id = s.doc
+            join cmn_par p on d.usr = p.id 
+            join tic_docsuid u on u.docs = s.id and u.first is not null
+            where s.event = ${objId}
+            and trim(d.status) not in ('4', '0')
+            group by s.event, d.id, p."text", p.id, p.email, p.birthday, p.idnum
+            union
+            select s.event, d.id, p."text", p.id, p.email, p.birthday, p.idnum, count(*) broj, 1 kupac
+            from tic_docs s 
+            join tic_doc d on d.id = s.doc
+            join cmn_par p on d.usr = p.id 
+            where s.event = ${objId}
+            and trim(d.status) =  '0'
+            and TO_TIMESTAMP(d.endtm, 'YYYYMMDDHH24MISS') > NOW()
+            group by s.event, d.id, p."text", p.id, p.email, p.birthday, p.idnum
+            union
+            select s.event, d.id, u.first||' '||u."last" text, u.par, u.email, u.birthday, u.uid, count(*) broj, 0 kupac
+            from tic_docs s 
+            join tic_doc d on d.id = s.doc
+            join tic_docsuid u on u.docs = s.id and u.first is not null
+            where s.event = ${objId}
+            and trim(d.status) not in ('4', '0')
+            group by s.event, d.id, u.first||' '||u."last", u.par, u.email, u.birthday, u.uid
+            union
+            select s.event, d.id, u.first||' '||u."last" text, u.par, u.email, u.birthday, u.uid, count(*) broj, 0 kupac
+            from tic_docs s 
+            join tic_doc d on d.id = s.doc
+            join tic_docsuid u on u.docs = s.id and u.first is not null
+            where s.event = ${objId}
+            and trim(d.status) =  '0'
+            and TO_TIMESTAMP(d.endtm, 'YYYYMMDDHH24MISS') > NOW()
+            group by s.event, d.id, u.first||' '||u."last", u.par, u.email, u.birthday, u.uid
+            `;
+        break;
+      case "tic_doceventsl_v":
+        sqlRecenica =
+          `
+            select aa.event
+            from	tic_docs aa
+            where aa.doc = ${objId}
+              `;
+        break;
       default:
         console.error("Pogrešan naziv za view");
         return res.status(400).json({ message: "Invalid 'stm' parameter" });
     }
 
-    console.log(sqlRecenica, "*********************getAll***********************");
+    // console.log(sqlRecenica, "*********************getAll***********************");
 
     const result = await db.query(sqlRecenica);
     const rows = result.rows;
@@ -352,7 +408,7 @@ const getValue = async (req, res) => {
         return res.status(400).json({ message: "Invalid 'stm' parameter" });
     }
 
-    console.log(sqlRecenica, "***********************getValue***********************");
+    // console.log(sqlRecenica, "***********************getValue***********************");
 
     const result = await db.query(sqlRecenica);
     const item = result.rows[0];
@@ -384,10 +440,10 @@ function createInvoiceData(json1, json2) {
 
   // Kombinacija svih stavki u jedinstveni niz
   const allItems = [...itemsG, ...itemsDj];
-  console.log(allItems, "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
+  // console.log(allItems, "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
   // Izračunavanje ukupne sume za payment
   const totalAmount = allItems.reduce((sum, item) => sum + Number(item.totalAmount), 0);
-  console.log(totalAmount, "11-SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
+  // console.log(totalAmount, "11-SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
 
   // Kreiranje finalnog JSON-a
   const invoiceRequest = {
