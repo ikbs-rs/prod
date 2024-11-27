@@ -95,7 +95,7 @@ const getAll = async (req, res) => {
             from	cmn_paymenttpx_v p
             where p.lang = '${lang || 'en'}'
             `;
-        // console.log(sqlRecenica, "***********************getAll***********************");
+        
         break;
       case "tic_docsdiscounttp_v":
         sqlRecenica = `
@@ -354,7 +354,7 @@ const getAll = async (req, res) => {
         return res.status(400).json({ message: "Invalid 'stm' parameter" });
     }
 
-    // console.log(sqlRecenica, "*********************getAll***********************");
+    console.log(sqlRecenica, "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
 
     const result = await db.query(sqlRecenica);
     const rows = result.rows;
