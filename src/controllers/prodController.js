@@ -354,7 +354,7 @@ const getAll = async (req, res) => {
         return res.status(400).json({ message: "Invalid 'stm' parameter" });
     }
 
-    console.log(sqlRecenica, "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+    // console.log(sqlRecenica, "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
 
     const result = await db.query(sqlRecenica);
     const rows = result.rows;
@@ -488,6 +488,7 @@ const getDataFiskal = async (req, res) => {
     join tic_artx_v a on aa.art = a.id and a.lang = '${lang || 'sr_cyr'}'
     join tic_arttp t on t.id = a.tp and t.code != 'Н'
     and aa.doc = d.id
+    and aa.price is not null
       `;
     // console.log(sqlRecenica, "***********************getValue***********************");
     const resultK = await db.query(sqlRecenicaK);
