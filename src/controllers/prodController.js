@@ -95,7 +95,7 @@ const getAll = async (req, res) => {
             from	cmn_paymenttpx_v p
             where p.lang = '${lang || 'en'}'
             `;
-        
+
         break;
       case "tic_docsdiscounttp_v":
         sqlRecenica = `
@@ -117,46 +117,46 @@ const getAll = async (req, res) => {
         break
       case "tic_docsnaknade_v":
         sqlRecenica = `
-    select aa.doc id, aa.tgp, aa.taxrate, aa.art, a.code cart, a.text nart, e.text nevent, 
+	  select aa.doc id, aa.tgp, sum(aa.tax) taxrate, aa.art, a.code cart, a.text nart, e.text nevent, 
           sum(aa."output") "output" , sum(aa."potrazuje") "potrazuje" , sum(aa.rightcurr) rightcurr, sum(aa.discount) discount
     from tic_docs aa
     join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
     join tic_artx_v a on aa.art = a.id and a.lang = 'sr_cyr'
     join tic_arttp t on t.id = a.tp and t.code = 'Н'
     join tic_eventx_v e on e.id = aa.event
-    group by aa.doc, aa.tgp, aa.taxrate, aa.art, a.code, a.text, e.text	
+    group by aa.doc, aa.tgp, aa.art, a.code, a.text, e.text	
     union
-    select aa.doc id, aa.printtgp, aa.printtax, aa.printid, aa.printcode cart, aa.printtext nart, e.text nevent, 
+    select aa.doc id, aa.printtgp, sum(aa.printtax) printtax, aa.printid, aa.printcode cart, aa.printtext nart, e.text nevent, 
           sum(aa."output") "output" , sum(aa.printfee) "potrazuje" , sum(aa.printfee) rightcurr, sum(aa.discount) discount
     from tic_docs aa
     join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
     join tic_eventx_v e on e.id = aa.event
     where aa.printid != -1
-    group by aa.doc, aa.printtgp, aa.printtax, aa.printid, aa.printcode, aa.printtext, e.text
+    group by aa.doc, aa.printtgp,  aa.printid, aa.printcode, aa.printtext, e.text
     union
-    select aa.doc id, aa.onlinetgp, aa.onlinetax, aa.onlineid, aa.onlinecode cart, aa.onlinetext nart, e.text nevent, 
+    select aa.doc id, aa.onlinetgp, sum(aa.onlinetax) onlinetax, aa.onlineid, aa.onlinecode cart, aa.onlinetext nart, e.text nevent, 
           sum(aa."output") "output" , sum(aa.onlinefee) "potrazuje" , sum(aa.onlinefee) rightcurr, sum(aa.discount) discount
     from tic_docs aa
     join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
     join tic_eventx_v e on e.id = aa.event
     where aa.onlineid != -1
-    group by aa.doc, aa.onlinetgp, aa.onlinetax, aa.onlineid, aa.onlinecode, aa.onlinetext, e.text
+    group by aa.doc, aa.onlinetgp, aa.onlineid, aa.onlinecode, aa.onlinetext, e.text
     union
-    select aa.doc id, aa.reztgp, aa.reztax, aa.rezid, aa.rezcode cart, aa.reztext nart, e.text nevent, 
+    select aa.doc id, aa.reztgp, sum(aa.reztax) reztax, aa.rezid, aa.rezcode cart, aa.reztext nart, e.text nevent, 
           sum(aa."output") "output" , sum(aa.rezfee) "potrazuje" , sum(aa.rezfee) rightcurr, sum(aa.discount) discount
     from tic_docs aa
     join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
     join tic_eventx_v e on e.id = aa.event
     where aa.rezid != -1
-    group by aa.doc, aa.reztgp, aa.reztax, aa.rezid, aa.rezcode, aa.reztext, e.text
+    group by aa.doc, aa.reztgp, aa.rezid, aa.rezcode, aa.reztext, e.text
     union
-    select aa.doc id, aa.pmtgp, aa.pmtax, aa.pmid, aa.pmcode cart, aa.pmtext nart, e.text nevent, 
+    select aa.doc id, aa.pmtgp, sum(aa.pmtax) pmtax, aa.pmid, aa.pmcode cart, aa.pmtext nart, e.text nevent, 
           sum(aa."output") "output" , sum(aa.pmfee) "potrazuje" , sum(aa.pmfee) rightcurr, sum(aa.discount) discount
     from tic_docs aa
     join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
     join tic_eventx_v e on e.id = aa.event
     where aa.pmid != -1
-    group by aa.doc, aa.pmtgp, aa.pmtax, aa.pmid, aa.pmcode, aa.pmtext, e.text
+    group by aa.doc, aa.pmtgp, aa.pmid, aa.pmcode, aa.pmtext, e.text
             `;
         break;
       case "tic_eventatts11l_v":
@@ -349,6 +349,15 @@ const getAll = async (req, res) => {
             where aa.doc = ${objId}
               `;
         break;
+      case "tic_eventterrnaknade_v":
+        sqlRecenica = `
+            SELECT t.id, t.code, t.text textx, s.condition, s.text, s.link, s.minfee 
+            FROM cmn_terrx_v t
+            JOIN tic_eventatts s ON CAST(t.id AS TEXT) = s."value" and s.event = ${objId}
+            join tic_eventatt a on a.id = s.att and a.code = '08.04.'
+            where   t.lang = '${lang || 'sr_cyr'}'
+            `;
+        break;
       default:
         console.error("Pogrešan naziv za view");
         return res.status(400).json({ message: "Invalid 'stm' parameter" });
@@ -358,6 +367,9 @@ const getAll = async (req, res) => {
 
     const result = await db.query(sqlRecenica);
     const rows = result.rows;
+    if (stm=='tic_eventterrnaknade_v') {
+    console.log(rows, "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH", sqlRecenica);
+    }
     // switch (stm) {   
     //   case "tic_doc":
     //   case "cmn_par":
