@@ -28,7 +28,7 @@ APP_PORT = '8306'
 HTTPS_PORT = '8336'
 ROOT_DIR = 'prod'
 DATA_CENTAR = '3'
-SSL_DIR= '/opt/app/ikbs-rs/js/back/adm/src/security/ssl/'
+SSL_DIR= '/srv/ticketline/app/ikbs-rs/js/back/adm/src/security/ssl/'
 
 SECRET = '4a8fd3c7f98a01b84627b3d13ae6d0f679bd5aabbf14de57d95ecba9c1875d5a'
 EXPIRESIN = '1h'

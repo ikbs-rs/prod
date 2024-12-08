@@ -99,13 +99,13 @@ const getAll = async (req, res) => {
         break;
       case "tic_docsdiscounttp_v":
         sqlRecenica = `
-            select 	max(s.id) id, e.text nevent, a."text" natt, tp."text" nprivilige, min(s."condition") condition, s.minfee, s.text, s.value, 
+            select 	max(s.id) id, e.text nevent, a."text" natt, tp.text nprivilige, min(s."condition") condition, s.minfee, s.text, s.value, 
                     tp.code cprivilege,
                     e.text ||', '|| a."text" ||', ' text1,
                     tp."text" ||'- val: '|| coalesce(min(s."condition"), ' ')||', '||coalesce(s.minfee::text, ' ') text
             from 	tic_eventx_v e
             join 	tic_eventatts s on s.event = e.id 
-            join 	tic_eventattx_v a on a.id = s.att and a.code like '09.01%'
+            join 	tic_eventattx_v a on a.id = s.att and a.code like '09.%'
                   and a.lang = '${lang || 'sr_cyr'}'
             left join 	tic_privilegex_v tp on trim(s.value) = tp.id::text
                   and tp.lang = '${lang || 'sr_cyr'}'    
@@ -114,6 +114,7 @@ const getAll = async (req, res) => {
             where e.lang = '${lang || 'sr_cyr'}'
             group by e."text" , a."text" , tp."text", s.minfee, s.text, s.value, tp.code
             `;
+            console.log(sqlRecenica, "***********************getValue***********************");
         break
       case "tic_docsnaknade_v":
         sqlRecenica = `
