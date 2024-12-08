@@ -107,7 +107,7 @@ const getAll = async (req, res) => {
             join 	tic_eventatts s on s.event = e.id 
             join 	tic_eventattx_v a on a.id = s.att and a.code like '09.%'
                   and a.lang = '${lang || 'sr_cyr'}'
-            left join 	tic_privilegex_v tp on trim(s.value) = tp.id::text
+            left join 	tic_privilegex_v tp on trim(s.text) = tp.id::text
                   and tp.lang = '${lang || 'sr_cyr'}'    
             join  tic_docs ss on 	e.id = ss.event
                   and 	ss.id = ${objId}
