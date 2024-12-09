@@ -374,10 +374,10 @@ const getAll = async (req, res) => {
         console.error("Pogrešan naziv za view");
         return res.status(400).json({ message: "Invalid 'stm' parameter" });
     }
-    if (stm == 'tic_eventattscodechvaluel_v') {
-      console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH", sqlRecenica);
-    }
-
+    // if (stm == 'tic_eventattscodechvaluel_v') {
+      
+    // }
+    // console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH", sqlRecenica);
     const result = await db.query(sqlRecenica);
     const rows = result.rows;
 
