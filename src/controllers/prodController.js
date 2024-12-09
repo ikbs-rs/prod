@@ -114,7 +114,7 @@ const getAll = async (req, res) => {
             where e.lang = '${lang || 'sr_cyr'}'
             group by e."text" , a."text" , tp."text", s.minfee, s.text, s.value, tp.code
             `;
-            console.log(sqlRecenica, "***********************getValue***********************");
+        console.log(sqlRecenica, "***********************getValue***********************");
         break
       case "tic_docsnaknade_v":
         sqlRecenica = `
@@ -204,6 +204,7 @@ const getAll = async (req, res) => {
           aa.event, getValueById(aa.event, 'tic_eventx_v', 'code', '${lang || 'sr_cyr'}') cevent, getValueById(aa.event, 'tic_eventx_v', 'text', '${lang || 'sr_cyr'}') nevent,
           aa.loc, getValueById(aa.loc, 'cmn_locx_v', 'code', '${lang || 'sr_cyr'}') cloc, getValueById(aa.loc, 'cmn_locx_v', 'text', '${lang || 'sr_cyr'}') nloc,
           aa.art, getValueById(aa.art, 'tic_artx_v', 'code', '${lang || 'sr_cyr'}') cart, getValueById(aa.art, 'tic_artx_v', 'text', '${lang || 'sr_cyr'}') nart,
+          aa.sector nsector,
           0 del, aa.docstorno
           from tic_docs aa
           join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
@@ -359,18 +360,27 @@ const getAll = async (req, res) => {
             where   t.lang = '${lang || 'sr_cyr'}'
             `;
         break;
+      case "tic_eventattscodechvaluel_v":
+        sqlRecenica =
+          `
+            select aa.id, a2.code catt, a2.text natt, a2.code, aa.value val1, aa.text val2, aa.condition val3, aa.link val4, aa.minfee val5
+            from	tic_eventatts aa 
+            join tic_eventattx_v a2 on  aa.att = a2.id and a2.code = '${par1}'
+            where aa.event = ${objId}
+            and aa.value = ${par2}::text
+              `;
+        break;
       default:
         console.error("Pogrešan naziv za view");
         return res.status(400).json({ message: "Invalid 'stm' parameter" });
     }
-
-    // console.log(sqlRecenica, "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+    if (stm == 'tic_eventattscodechvaluel_v') {
+      console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH", sqlRecenica);
+    }
 
     const result = await db.query(sqlRecenica);
     const rows = result.rows;
-    if (stm=='tic_eventterrnaknade_v') {
-    console.log(rows, "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH", sqlRecenica);
-    }
+
     // switch (stm) {   
     //   case "tic_doc":
     //   case "cmn_par":
