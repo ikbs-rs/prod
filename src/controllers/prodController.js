@@ -114,7 +114,7 @@ const getAll = async (req, res) => {
             where e.lang = '${lang || 'sr_cyr'}'
             group by e."text" , a."text" , tp."text", s.minfee, s.text, s.value, tp.code
             `;
-        console.log(sqlRecenica, "***********************getValue***********************");
+        // console.log(sqlRecenica, "***********************getValue***********************");
         break
       case "tic_docsnaknade_v":
         sqlRecenica = `
