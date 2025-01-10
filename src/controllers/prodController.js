@@ -38,7 +38,9 @@ const getAll = async (req, res) => {
           JOIN cmn_locx_v l1 ON aa.mesto = l1.id AND l1.lang = '${lang}'  
           WHERE aa.lang = '${lang}'
           and aa.status != 0
+          AND TO_DATE(aa.endda, 'YYYYMMDD') >= CURRENT_DATE
         `;
+        console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH", sqlRecenica);
         break;
       case "tic_docsuidprodaja_v":
         sqlRecenica = `
