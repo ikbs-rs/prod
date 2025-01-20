@@ -203,12 +203,12 @@ const getAll = async (req, res) => {
           select aa.id, aa.loc, aa.art, aa.tgp, aa.taxrate, aa.price , aa."input", aa."output" , aa.curr , aa.currrate, aa.site, aa.doc, aa.seat, aa.row,
           aa."duguje" , aa."potrazuje" , aa.leftcurr , aa.rightcurr, aa.begtm , aa.endtm , aa.status , aa.fee , aa.par, aa.descript, aa.discount,
           aa.cena, aa.reztm, aa.storno, aa.nart, aa."row", aa."label", aa.vreme, aa.ticket, aa.services, aa.tickettp, aa.delivery,
-          aa.ulaz, aa.sector, aa.barcode, aa.online, aa.print, aa.pm, aa.rez, aa.sysuser,
+          aa.ulaz, aa.sector, aa.barcodevalue barcode, aa.online, aa.print, aa.pm, aa.rez, aa.sysuser,
           aa.event, getValueById(aa.event, 'tic_eventx_v', 'code', '${lang || 'sr_cyr'}') cevent, getValueById(aa.event, 'tic_eventx_v', 'text', '${lang || 'sr_cyr'}') nevent,
           aa.loc, getValueById(aa.loc, 'cmn_locx_v', 'code', '${lang || 'sr_cyr'}') cloc, getValueById(aa.loc, 'cmn_locx_v', 'text', '${lang || 'sr_cyr'}') nloc,
           aa.art, getValueById(aa.art, 'tic_artx_v', 'code', '${lang || 'sr_cyr'}') cart, getValueById(aa.art, 'tic_artx_v', 'text', '${lang || 'sr_cyr'}') nart,
           aa.sector nsector,
-          0 del, aa.docstorno
+          0 del, aa.docstorno, aa.barcodevalue
           from tic_docs aa
           join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
           join tic_artx_v a on aa.art = a.id and a.lang = '${lang || 'sr_cyr'}'
@@ -221,11 +221,11 @@ const getAll = async (req, res) => {
             select aa.id, aa.loc, aa.art, aa.tgp, aa.taxrate, aa.price , aa."input", aa."output" , aa.curr , aa.currrate, aa.site, aa.doc, aa.seat, aa.row,
             aa."duguje" , aa."potrazuje" , aa.leftcurr , aa.rightcurr, aa.begtm , aa.endtm , aa.status , aa.fee , aa.par, aa.descript, aa.discount,
             aa.cena, aa.reztm, aa.storno, aa.nart, aa."row", aa."label", aa.vreme, aa.ticket, aa.services, aa.tickettp, aa.delivery,
-            aa.ulaz, aa.sector, aa.barcode, aa.online, aa.print, aa.pm, aa.rez, aa.sysuser,
+            aa.ulaz, aa.sector, aa.barcodevalue barcode, aa.online, aa.print, aa.pm, aa.rez, aa.sysuser,
             aa.event, getValueById(aa.event, 'tic_eventx_v', 'code', '${lang || 'sr_cyr'}') cevent, getValueById(aa.event, 'tic_eventx_v', 'text', '${lang || 'sr_cyr'}') nevent,
             aa.loc, getValueById(aa.loc, 'cmn_locx_v', 'code', '${lang || 'sr_cyr'}') cloc, getValueById(aa.loc, 'cmn_locx_v', 'text', '${lang || 'sr_cyr'}') nloc,
             aa.art, getValueById(aa.art, 'tic_artx_v', 'code', '${lang || 'sr_cyr'}') cart, getValueById(aa.art, 'tic_artx_v', 'text', '${lang || 'sr_cyr'}') nart,
-            0 del, aa.docstorno
+            0 del, aa.docstorno, aa.barcodevalue
             from tic_docs aa
             join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
             join tic_artx_v a on aa.art = a.id and a.lang = '${lang || 'sr_cyr'}'
@@ -504,11 +504,11 @@ const getDataFiskal = async (req, res) => {
     select aa.id, aa.loc, aa.art, aa.tgp, aa.taxrate, aa.price , aa."input", aa."output" , aa.curr , aa.currrate, aa.site, aa.doc, aa.seat, aa.row,
     aa."duguje" , aa."potrazuje" , aa.leftcurr , aa.rightcurr, aa.begtm , aa.endtm , aa.status , aa.fee , aa.par, aa.descript, aa.discount,
     aa.cena, aa.reztm, aa.storno, aa.nart, aa."row", aa."label", aa.vreme, aa.ticket, aa.services, aa.tickettp, aa.delivery,
-    aa.ulaz, aa.sector, aa.barcode, aa.online, aa.print, aa.pm, aa.rez, aa.sysuser,
+    aa.ulaz, aa.sector, aa.barcodevalue barcode, aa.online, aa.print, aa.pm, aa.rez, aa.sysuser,
     aa.event, getValueById(aa.event, 'tic_eventx_v', 'code', '${lang || 'sr_cyr'}') cevent, getValueById(aa.event, 'tic_eventx_v', 'text', '${lang || 'sr_cyr'}') nevent,
     aa.loc, getValueById(aa.loc, 'cmn_locx_v', 'code', '${lang || 'sr_cyr'}') cloc, getValueById(aa.loc, 'cmn_locx_v', 'text', '${lang || 'sr_cyr'}') nloc,
     aa.art, getValueById(aa.art, 'tic_artx_v', 'code', '${lang || 'sr_cyr'}') cart, getValueById(aa.art, 'tic_artx_v', 'text', '${lang || 'sr_cyr'}') nart,
-    0 del
+    0 del, aa.docstorno, aa.barcodevalue
     from tic_docs aa
     join tic_doc d on aa.doc = d.id and aa.doc = ${objId}
     join tic_artx_v a on aa.art = a.id and a.lang = '${lang || 'sr_cyr'}'
