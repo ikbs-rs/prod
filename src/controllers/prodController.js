@@ -40,7 +40,7 @@ const getAll = async (req, res) => {
           and aa.status != 0
           AND TO_DATE(aa.endda, 'YYYYMMDD') >= CURRENT_DATE
         `;
-        console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH", sqlRecenica);
+        // console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH", sqlRecenica);
         break;
       case "tic_docsuidprodaja_v":
         sqlRecenica = `
